@@ -1,4 +1,5 @@
 import SwiftUI
+import Supabase
 
 enum OnboardingRoute: Hashable {
     case consumer
