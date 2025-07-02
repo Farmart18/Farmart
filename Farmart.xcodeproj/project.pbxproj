@@ -16,6 +16,11 @@
 			path = Farmart;
 			sourceTree = "<group>";
 		};
+		051EC7BE2E15323D00F1FAF4 /* .github */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = .github;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,6 +37,7 @@
 		051EC78E2E15100C00F1FAF4 = {
 			isa = PBXGroup;
 			children = (
+				051EC7BE2E15323D00F1FAF4 /* .github */,
 				051EC7992E15100C00F1FAF4 /* Farmart */,
 				051EC7982E15100C00F1FAF4 /* Products */,
 			);
@@ -62,6 +68,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				051EC7992E15100C00F1FAF4 /* Farmart */,
+				051EC7BE2E15323D00F1FAF4 /* .github */,
 			);
 			name = Farmart;
 			packageProductDependencies = (
