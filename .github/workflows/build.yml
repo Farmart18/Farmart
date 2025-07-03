@@ -8,9 +8,8 @@ on:
 
 jobs:
   build:
-    name: Build
+    name: build
     runs-on: macos-13
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -26,9 +25,8 @@ jobs:
                      clean build | xcpretty
 
   test:
-    name: Run Unit Tests
+    name: unit tests          
     runs-on: macos-13
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -44,9 +42,8 @@ jobs:
                      clean test | xcpretty
 
   lint:
-    name: SwiftLint
+    name: SwiftLint           # ✅ optional, no branch rule expecting this
     runs-on: macos-13
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
