@@ -42,7 +42,7 @@ jobs:
                      clean test | xcpretty
 
   lint:
-    name: SwiftLint           # ✅ optional, no branch rule expecting this
+    name: SwiftLint           
     runs-on: macos-13
     steps:
       - name: Checkout Repository
