@@ -15,6 +15,6 @@ class AuthManager {
     }
     
     func signInWithGoogle(redirectTo: URL?) async throws {
-        try await client.auth.signInWithOAuth(provider: "google", redirectTo: redirectTo)
+        try await client.auth.signInWithOAuth(provider: .google, redirectTo: redirectTo)
     }
 } 

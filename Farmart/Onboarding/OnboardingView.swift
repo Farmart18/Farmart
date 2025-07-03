@@ -8,12 +8,14 @@ enum OnboardingRoute: Hashable {
 
 struct OnboardingView: View {
     @State private var selection: OnboardingRoute?
-    
+    @State private var isLoggedIn = false
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 Spacer(minLength: 0)
-                // MARKS:-  Consumer
+
+                // MARKS:- Consumer
                 VStack(spacing: 24) {
                     Button(action: {
                         selection = .consumer
@@ -36,28 +38,38 @@ struct OnboardingView: View {
                 }
                 .padding(.top, 60)
                 .padding(.bottom, 16)
-                
-                // MARKS:-  Divider and 'Or continue as'
+
+                // MARKS:- Divider and 'Or continue as'
                 VStack(spacing: 8) {
-                    Divider()
-                        .padding(.horizontal, 40)
+                    Divider().padding(.horizontal, 40)
                     Text("Or continue as")
                         .font(.system(size: 15, weight: .regular))
                         .foregroundColor(.gray)
                 }
                 .padding(.bottom, 16)
-                // MARKS:-  Farmer'
+
+                // MARKS:- Farmer
                 VStack(spacing: 24) {
                     Text("Are you a Farmer?")
                         .font(.system(size: 22, weight: .semibold))
                         .foregroundColor(.black)
-                    Text("Continue as a farmer to Uplaod your Batches.")
+                    Text("Continue as a farmer to Upload your Batches.")
                         .font(.system(size: 17))
                         .foregroundColor(.black)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 34)
+
                     Button(action: {
-                        selection = .farmer
+                        Task {
+                            do {
+                                let callbackURL = URL(string: "https://wngwfirfyllcvxehegyd.supabase.co/auth/v1/callback")!
+                                // Wait for user to complete sign-in
+                                try await AuthManager.shared.signInWithGoogle(redirectTo: callbackURL)
+                                // Don't do anything else here — navigation happens in `.onOpenURL`
+                            } catch {
+                                print("Google sign-in failed: \(error.localizedDescription)")
+                            }
+                        }
                     }) {
                         Text("Continue as Farmer")
                             .font(.system(size: 19, weight: .semibold))
@@ -70,8 +82,6 @@ struct OnboardingView: View {
                     .padding(.horizontal, 24)
                 }
                 .padding(.vertical, 40)
-                .cornerRadius(32, corners: [.topLeft, .topRight])
-                .padding(.top, 0)
                 Spacer(minLength: 0)
             }
             .background(Color.Background.ignoresSafeArea())
@@ -84,8 +94,24 @@ struct OnboardingView: View {
                     FarmerView()
                 }
             }
+            .onChange(of: isLoggedIn) {
+                if isLoggedIn {
+                    selection = .farmer
+                }
+            }
+
+            .onOpenURL { url in
+                Task {
+                    do {
+                        try await AuthManager.shared.client.auth.session(from: url)
+                        if AuthManager.shared.client.auth.currentUser != nil {
+                            isLoggedIn = true
+                        }
+                    } catch {
+                        print("Failed to handle redirect: \(error)")
+                    }
+                }
+            }
         }
     }
 }
-
-
