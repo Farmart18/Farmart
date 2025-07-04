@@ -13,15 +13,30 @@
 		052A254A2E154F2D007C87F5 /* Realtime in Frameworks */ = {isa = PBXBuildFile; productRef = 052A25492E154F2D007C87F5 /* Realtime */; };
 		052A254C2E154F2D007C87F5 /* Storage in Frameworks */ = {isa = PBXBuildFile; productRef = 052A254B2E154F2D007C87F5 /* Storage */; };
 		052A254E2E154F2D007C87F5 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 052A254D2E154F2D007C87F5 /* Supabase */; };
+		FEC8ECBE2E17093400731989 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = FEC8ECBD2E17093400731989 /* GoogleSignIn */; };
+		FEC8ECC02E17093400731989 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = FEC8ECBF2E17093400731989 /* GoogleSignInSwift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		051EC7972E15100C00F1FAF4 /* Farmart.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Farmart.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		FEC8ECC22E170B5800731989 /* Exceptions for "Farmart" folder in "Farmart" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 051EC7962E15100C00F1FAF4 /* Farmart */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		051EC7992E15100C00F1FAF4 /* Farmart */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				FEC8ECC22E170B5800731989 /* Exceptions for "Farmart" folder in "Farmart" target */,
+			);
 			path = Farmart;
 			sourceTree = "<group>";
 		};
@@ -40,9 +55,11 @@
 				052A25482E154F2D007C87F5 /* PostgREST in Frameworks */,
 				052A25462E154F2D007C87F5 /* Functions in Frameworks */,
 				052A254E2E154F2D007C87F5 /* Supabase in Frameworks */,
+				FEC8ECC02E17093400731989 /* GoogleSignInSwift in Frameworks */,
 				052A25442E154F2D007C87F5 /* Auth in Frameworks */,
 				052A254C2E154F2D007C87F5 /* Storage in Frameworks */,
 				052A254A2E154F2D007C87F5 /* Realtime in Frameworks */,
+				FEC8ECBE2E17093400731989 /* GoogleSignIn in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -101,6 +118,8 @@
 				052A25492E154F2D007C87F5 /* Realtime */,
 				052A254B2E154F2D007C87F5 /* Storage */,
 				052A254D2E154F2D007C87F5 /* Supabase */,
+				FEC8ECBD2E17093400731989 /* GoogleSignIn */,
+				FEC8ECBF2E17093400731989 /* GoogleSignInSwift */,
 			);
 			productName = Farmart;
 			productReference = 051EC7972E15100C00F1FAF4 /* Farmart.app */;
@@ -132,6 +151,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				052A25412E154F0D007C87F5 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+				FEC8ECBC2E17093400731989 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 051EC7982E15100C00F1FAF4 /* Products */;
@@ -293,6 +313,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Farmart/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Farmart/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -321,6 +342,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Farmart/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Farmart/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -371,6 +393,14 @@
 				minimumVersion = 2.5.1;
 			};
 		};
+		FEC8ECBC2E17093400731989 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -403,6 +433,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 052A25412E154F0D007C87F5 /* XCRemoteSwiftPackageReference "supabase-swift" */;
 			productName = Supabase;
+		};
+		FEC8ECBD2E17093400731989 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FEC8ECBC2E17093400731989 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		FEC8ECBF2E17093400731989 /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FEC8ECBC2E17093400731989 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

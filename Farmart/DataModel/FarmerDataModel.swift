@@ -15,38 +15,67 @@ struct Farmer: Identifiable, Codable {
     var profileImage: URL?
     var createdAt: Date
 
-    // Custom decoding to allow decoding profileImage from String URL
-    enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case email
-        case phone
-        case profileImage
-        case createdAt
-    }
-
-    init(id: UUID = UUID(), name: String, email: String, phone: String? = nil, profileImage: URL? = nil, createdAt: Date = Date()) {
-        self.id = id
-        self.name = name
-        self.email = email
-        self.phone = phone
-        self.profileImage = profileImage
-        self.createdAt = createdAt
-    }
-
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
-        name = try container.decode(String.self, forKey: .name)
-        email = try container.decode(String.self, forKey: .email)
-        phone = try container.decodeIfPresent(String.self, forKey: .phone)
-
-        if let profileImageString = try container.decodeIfPresent(String.self, forKey: .profileImage) {
-            profileImage = URL(string: profileImageString)
-        } else {
-            profileImage = nil
+//    // Custom decoding to allow decoding profileImage from String URL
+//    enum CodingKeys: String, CodingKey {
+//        case id
+//        case name
+//        case email
+//        case phone
+//        case profileImage
+//        case createdAt
+//    }
+//
+//    init(id: UUID = UUID(), name: String, email: String, phone: String? = nil, profileImage: URL? = nil, createdAt: Date = Date()) {
+//        self.id = id
+//        self.name = name
+//        self.email = email
+//        self.phone = phone
+//        self.profileImage = profileImage
+//        self.createdAt = createdAt
+//    }
+//
+//    init(from decoder: Decoder) throws {
+//        let container = try decoder.container(keyedBy: CodingKeys.self)
+//        id = try container.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
+//        name = try container.decode(String.self, forKey: .name)
+//        email = try container.decode(String.self, forKey: .email)
+//        phone = try container.decodeIfPresent(String.self, forKey: .phone)
+//
+//        if let profileImageString = try container.decodeIfPresent(String.self, forKey: .profileImage) {
+//            profileImage = URL(string: profileImageString)
+//        } else {
+//            profileImage = nil
+//        }
+//
+//        createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt) ?? Date()
+//    }
+    
+    init(
+            id: UUID = UUID(),
+            name: String,
+            email: String,
+            phone: String? = nil,
+            profileImage: URL? = nil,
+            createdAt: Date = Date()  // Defaults to current date
+        ) {
+            self.id = id
+            self.name = name
+            self.email = email
+            self.phone = phone
+            self.profileImage = profileImage
+            self.createdAt = createdAt
         }
-
-        createdAt = try container.decodeIfPresent(Date.self, forKey: .createdAt) ?? Date()
-    }
+        
+//        // Convenience init for Supabase Auth Session
+//        init(from session: Session) {
+//            let user = session.user
+//            let userName = user.userMetadata?["full_name"] as? String ?? ""
+//            
+//            self.init(
+//                id: UUID(uuidString: user.id.uuidString) ?? UUID(),
+//                name: userName,
+//                email: user.email ?? "",
+//                profileImage: URL(string: user.userMetadata?["avatar_url"] as? String ?? "")
+//            )
+//        }
 }

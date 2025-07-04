@@ -9,6 +9,9 @@ enum OnboardingRoute: Hashable {
 struct OnboardingView: View {
     @State private var selection: OnboardingRoute?
     @State private var isLoggedIn = false
+    @EnvironmentObject var authManager: AuthManager
+    @State private var isLoading = false
+    @State private var error: Error?
 
     var body: some View {
         NavigationStack {
@@ -61,14 +64,14 @@ struct OnboardingView: View {
 
                     Button(action: {
                         Task {
+                            isLoading = true
                             do {
-                                let callbackURL = URL(string: "https://wngwfirfyllcvxehegyd.supabase.co/auth/v1/callback")!
-                                // Wait for user to complete sign-in
-                                try await AuthManager.shared.signInWithGoogle(redirectTo: callbackURL)
-                                // Don't do anything else here — navigation happens in `.onOpenURL`
+                                let farmer = try await authManager.signInWithGoogleUsingSafari()
+                                print("Signed in as: \(farmer.name)")
                             } catch {
-                                print("Google sign-in failed: \(error.localizedDescription)")
+                                self.error = error
                             }
+                            isLoading = false
                         }
                     }) {
                         Text("Continue as Farmer")
@@ -80,6 +83,12 @@ struct OnboardingView: View {
                             .cornerRadius(16)
                     }
                     .padding(.horizontal, 24)
+                    .disabled(isLoading)
+                    .alert("Error", isPresented: .constant(error != nil)) {
+                        Button("OK") { error = nil }
+                    } message: {
+                        Text(error?.localizedDescription ?? "")
+                    }
                 }
                 .padding(.vertical, 40)
                 Spacer(minLength: 0)
@@ -100,18 +109,18 @@ struct OnboardingView: View {
                 }
             }
 
-            .onOpenURL { url in
-                Task {
-                    do {
-                        try await AuthManager.shared.client.auth.session(from: url)
-                        if AuthManager.shared.client.auth.currentUser != nil {
-                            isLoggedIn = true
-                        }
-                    } catch {
-                        print("Failed to handle redirect: \(error)")
-                    }
-                }
-            }
+//            .onOpenURL { url in
+//                Task {
+//                    do {
+//                        try await AuthManager.shared.client.auth.session(from: url)
+//                        if AuthManager.shared.client.auth.currentUser != nil {
+//                            isLoggedIn = true
+//                        }
+//                    } catch {
+//                        print("Failed to handle redirect: \(error)")
+//                    }
+//                }
+//            }
         }
     }
 }
