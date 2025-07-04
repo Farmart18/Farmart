@@ -55,33 +55,11 @@ class AuthManager: ObservableObject {
         )
     }
     
-//    func signInWithGoogleUsingSafari() async throws -> Farmer {
-//           let callbackURL = URL(string: "com.seekconnections.seek://auth-callback")!
-//        print("Callback URL: \(callbackURL.absoluteString)")
-//           let url = try await client.auth.getOAuthSignInURL(
-//               provider: .google,
-//               redirectTo: callbackURL
-//           )
-//        print("OAuth URL: \(url.absoluteString)")
-//           
-//           return try await withCheckedThrowingContinuation { continuation in
-//               self.continuation = continuation
-//               
-//               Task { @MainActor in
-//                   let safariVC = SFSafariViewController(url: url)
-//                   self.safariVC = safariVC
-//                   
-//                   if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-//                      let rootViewController = windowScene.windows.first?.rootViewController {
-//                       rootViewController.present(safariVC, animated: true)
-//                   }
-//               }
-//           }
-//       }
-    
     func signInWithGoogleUsingSafari() async throws -> Farmer {
         // 1. Use simpler callback URL
-        let callbackURL = URL(string: "com.seekconnections.seek://")!
+       // let callbackURL = URL(string: "com.seekconnections.seek://")!
+        let callbackURL = URL(string: "com.googleusercontent.apps.635795365010-BT15uihj08vfebvvhd07xqm07ufi3ll://")!
+        print("Attempting callback to: \(callbackURL.absoluteString)")
         
         // 2. Get the OAuth URL
         let url = try await client.auth.getOAuthSignInURL(
@@ -161,7 +139,4 @@ class AuthManager: ObservableObject {
     
 }
 
-//func signInWithGoogle(redirectTo: URL?) async throws {
-//    try await client.auth.signInWithOAuth(provider: .google, redirectTo: redirectTo)
-//}
 

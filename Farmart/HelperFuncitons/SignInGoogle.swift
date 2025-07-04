@@ -29,29 +29,6 @@ class SignInGoogle {
         
     }
     
-//    func signInWithGoogleFlow(completion: @escaping (Result<SignInGoogleResult, Error>) -> Void) {
-//        guard let topVC = UIApplication.getTopViewController() else {
-//            completion(.failure(NSError(domain: "AuthError", code: -1, userInfo: [NSLocalizedDescriptionKey: "Could not find top view controller"])))
-//            return
-//        }
-//        
-//        let nonce = randomNonceString()
-//        GIDSignIn.sharedInstance.signIn(withPresenting: topVC) { signInResult, error in
-//            if let error = error {
-//                completion(.failure(error))
-//                return
-//            }
-//            
-//            guard let user = signInResult?.user,
-//                  let idToken = user.idToken else {
-//                completion(.failure(NSError(domain: "AuthError", code: -2, userInfo: [NSLocalizedDescriptionKey: "Failed to get ID token"])))
-//                return
-//            }
-//            
-//            completion(.success(.init(idToken: idToken.tokenString, nonce: nonce)))
-//        }
-//    }
-    
     func signInWithGoogleFlow(completion: @escaping (Result<SignInGoogleResult, Error>) -> Void) {
         guard let topVC = UIApplication.getTopViewController() else {
             completion(.failure(NSError(domain: "AuthError", code: -1, userInfo: nil)))
