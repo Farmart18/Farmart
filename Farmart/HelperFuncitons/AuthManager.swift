@@ -9,7 +9,7 @@ class AuthManager: ObservableObject {
     private var continuation: CheckedContinuation<Farmer, Error>?
     
     // Replace with your actual Supabase project URL and anon key
-    private let supabaseURL = URL(string: "https://318774562828-qnd071hnv54jh8msk346pin96u408h7o.supabase.co")!
+    private let supabaseURL = URL(string: "https://wngwfirfyllcvxehegyd.supabase.co")!
     private let supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InduZ3dmaXJmeWxsY3Z4ZWhlZ3lkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE0NTI5NDYsImV4cCI6MjA2NzAyODk0Nn0.nCxnaUCZM9q6gn3meFzNfJAV-Qe6AaT740jJdFyPJdc"
     
     let client: SupabaseClient
@@ -55,29 +55,58 @@ class AuthManager: ObservableObject {
         )
     }
     
+//    func signInWithGoogleUsingSafari() async throws -> Farmer {
+//           let callbackURL = URL(string: "com.seekconnections.seek://auth-callback")!
+//        print("Callback URL: \(callbackURL.absoluteString)")
+//           let url = try await client.auth.getOAuthSignInURL(
+//               provider: .google,
+//               redirectTo: callbackURL
+//           )
+//        print("OAuth URL: \(url.absoluteString)")
+//           
+//           return try await withCheckedThrowingContinuation { continuation in
+//               self.continuation = continuation
+//               
+//               Task { @MainActor in
+//                   let safariVC = SFSafariViewController(url: url)
+//                   self.safariVC = safariVC
+//                   
+//                   if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+//                      let rootViewController = windowScene.windows.first?.rootViewController {
+//                       rootViewController.present(safariVC, animated: true)
+//                   }
+//               }
+//           }
+//       }
+    
     func signInWithGoogleUsingSafari() async throws -> Farmer {
-           let callbackURL = URL(string: "com.seekconnections.seek://auth-callback")!
-        print("Callback URL: \(callbackURL.absoluteString)")
-           let url = try await client.auth.getOAuthSignInURL(
-               provider: .google,
-               redirectTo: callbackURL
-           )
-        print("OAuth URL: \(url.absoluteString)")
-           
-           return try await withCheckedThrowingContinuation { continuation in
-               self.continuation = continuation
-               
-               Task { @MainActor in
-                   let safariVC = SFSafariViewController(url: url)
-                   self.safariVC = safariVC
-                   
-                   if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                      let rootViewController = windowScene.windows.first?.rootViewController {
-                       rootViewController.present(safariVC, animated: true)
-                   }
-               }
-           }
-       }
+        // 1. Use simpler callback URL
+        let callbackURL = URL(string: "com.seekconnections.seek://")!
+        
+        // 2. Get the OAuth URL
+        let url = try await client.auth.getOAuthSignInURL(
+            provider: .google,
+            redirectTo: callbackURL
+        )
+        
+        print("Final OAuth URL: \(url.absoluteString)")
+        
+        // 3. Open URL on main thread
+        return try await withCheckedThrowingContinuation { continuation in
+            self.continuation = continuation
+            
+            Task { @MainActor in
+                let success = await UIApplication.shared.open(url)
+                if !success {
+                    continuation.resume(throwing: NSError(
+                        domain: "AuthError",
+                        code: -1,
+                        userInfo: [NSLocalizedDescriptionKey: "Failed to open authentication URL"]
+                    ))
+                }
+            }
+        }
+    }
     
     func handleOAuthCallback(url: URL) async throws {
         do {
