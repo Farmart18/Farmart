@@ -14,10 +14,10 @@ struct ContentView: View {
     var body: some View {
         Group {
             if isCheckingAuth {
-                // Loading view while checking authentication
-                ProgressView("Loading...")
+              
+                ProgressView("Loading")
             } else {
-                // Show onboarding or main app based on auth status
+                
                 OnboardingView()
                     .environmentObject(authManager)
             }
@@ -32,8 +32,6 @@ struct ContentView: View {
             do {
                
                 let _ = try await authManager.getCurrentSession()
-                // If we get here, user is already authenticated
-                // You might want to navigate to a different view
             } catch {
                 // User is not authenticated, show onboarding
                 print("No current session: \(error)")
