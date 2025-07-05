@@ -40,9 +40,12 @@ import GoogleSignIn
 
 @main
 struct FarmartApp: App {
+    @StateObject private var authManager = AuthManager.shared
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(authManager)
                 .onAppear {
                     // Configure Google Sign-In
                     if let path = Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist"),
@@ -59,15 +62,21 @@ struct FarmartApp: App {
     }
     
     private func handleURL(_ url: URL) {
-        print("Received URL: \(url.absoluteString)")
+        print("🔗 Received URL: \(url.absoluteString)")
+        print("🔗 URL Scheme: \(url.scheme ?? "none")")
+        print("🔗 URL Host: \(url.host ?? "none")")
+        print("🔗 URL Path: \(url.path)")
+        print("🔗 URL Query: \(url.query ?? "none")")
         
         // Check if this is our custom scheme callback
         if url.scheme == "gu.Farmart" {
+            print("🔗 Handling custom scheme callback")
             Task {
                 do {
                     try await AuthManager.shared.handleOAuthCallback(url: url)
+                    print("🔗 OAuth callback handled successfully")
                 } catch {
-                    print("OAuth callback error: \(error)")
+                    print("🔗 OAuth callback error: \(error)")
                 }
             }
         }

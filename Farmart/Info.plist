@@ -8,10 +8,18 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>gu.Farmart.auth</string>
+			<string>gu.Farmart</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>gu.Farmart</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.635795365010-5t15uihj08vfebvvhdj07vqm07uif3il</string>
 			</array>
 		</dict>
 	</array>
