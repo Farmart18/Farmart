@@ -2,14 +2,15 @@ name: Swift CI
 
 on:
   push:
-    branches: [main, development]
+    branches: [development]
   pull_request:
-    branches: [main, development]
+    branches: [development]
 
 jobs:
   build:
     name: Build
     runs-on: macos-13
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -27,6 +28,7 @@ jobs:
   test:
     name: Run Unit Tests
     runs-on: macos-13
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -42,8 +44,9 @@ jobs:
                      clean test | xcpretty
 
   lint:
-    name: SwiftLint           
+    name: SwiftLint
     runs-on: macos-13
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
