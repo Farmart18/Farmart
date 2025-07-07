@@ -22,6 +22,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		FE5673B62E1B683900A75471 /* Exceptions for ".github" folder in "Farmart" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				workflows/build.yml,
+			);
+			target = 051EC7962E15100C00F1FAF4 /* Farmart */;
+		};
 		FEC8ECC22E170B5800731989 /* Exceptions for "Farmart" folder in "Farmart" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -42,6 +49,9 @@
 		};
 		051EC7BE2E15323D00F1FAF4 /* .github */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				FE5673B62E1B683900A75471 /* Exceptions for ".github" folder in "Farmart" target */,
+			);
 			path = .github;
 			sourceTree = "<group>";
 		};
