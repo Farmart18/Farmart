@@ -21,7 +21,7 @@ struct AddBatchView: View {
             Form {
                 TextField("Crop Type", text: $cropType)
                 TextField("Variety", text: $variety)
-                DatePicker("Sowing Date", selection: $sowingDate, displayedComponents: .date)
+                DatePicker("Starting Date", selection: $sowingDate, displayedComponents: .date)
                 TextField("Notes (optional)", text: $notes)
             }
             .navigationTitle("Add Batch")

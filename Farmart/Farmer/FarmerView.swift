@@ -25,7 +25,9 @@ struct FarmerView: View {
                 AddBatchView(store: store)
             }
             .sheet(item: $selectedBatch) { batch in
-                BatchDetailView(batch: batch, store: store)
+                NavigationStack{
+                    BatchDetailView(batch: batch, store: store)
+                }
             }
             .task {
                 print("Current farmerId:", authManager.currentFarmerId as Any)

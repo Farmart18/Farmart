@@ -12,6 +12,8 @@ struct BatchDetailView: View {
     @State private var showStagePicker = false
     @State private var selectedStage: CropStage? = nil
     @State private var showFinalizeAlert = false
+    @Environment(\.dismiss) var dismiss
+
 
     var activities: [CropActivity] { store.activities(for: batch) }
 
@@ -61,7 +63,13 @@ struct BatchDetailView: View {
             }
             .padding()
         }
-        .navigationTitle(batch.cropType)
+        .navigationTitle("Batch details")
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Cancel") { dismiss() }
+            }
+        }
+
         .sheet(isPresented: $showStagePicker) {
             StagePickerSheet { stage in
                 selectedStage = stage
