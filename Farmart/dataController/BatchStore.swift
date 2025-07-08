@@ -6,6 +6,7 @@
 //
 import Foundation
 import Combine
+import UIKit
 
 class BatchStore: ObservableObject {
     @Published var batches: [CropBatch] = []
@@ -73,24 +74,43 @@ class BatchStore: ObservableObject {
     
     // Add a new activity
     @MainActor
-    func addActivity(_ activity: CropActivity) async {
+    func addActivityWithImages(_ activity: CropActivity, images: [UIImage]) async {
         await MainActor.run { self.isLoading = true }
+
         do {
-            try await BatchManager.shared.insertActivity(activity)
-            await loadActivities(for: activity.cropId)
+            // Upload images
+            let uploadedURLs: [String] = try await withThrowingTaskGroup(of: String.self) { group in
+                for image in images {
+                    let fileName = UUID().uuidString
+                    group.addTask {
+                        return try await BatchManager.shared.uploadImageToSupabase(image: image, fileName: fileName)
+                    }
+                }
+
+                return try await group.reduce(into: [String]()) { $0.append($1) }
+            }
+
+            // Insert activity with uploaded image URLs
+            var newActivity = activity
+            newActivity.images = uploadedURLs
+
+            try await BatchManager.shared.insertActivity(newActivity)
+            await loadActivities(for: newActivity.batchId)
             await MainActor.run { self.isLoading = false }
+
         } catch {
             await MainActor.run {
                 self.error = error
-                print("Failed to add activity:", error)
+                print("Failed to add activity with images:", error)
                 self.isLoading = false
             }
         }
     }
+
     
     // Get activities for a batch from the local cache
     func activities(for batch: CropBatch) -> [CropActivity] {
-        activities.filter { $0.cropId == batch.id }
+        activities.filter { $0.batchId == batch.id }
     }
     
     // Optionally, add methods for finalizeBatch, deleteBatch, etc., using BatchManager

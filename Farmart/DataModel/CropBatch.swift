@@ -25,47 +25,52 @@ enum CropStage: String, Codable, CaseIterable, Identifiable {
 
 struct AnyCodable: Codable {
     let value: Any
-    init(_ value: Any) { self.value = value }
+
+    init(_ value: Any) {
+        self.value = value
+    }
+
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        if let val = try? container.decode(Bool.self) { value = val }
-        else if let val = try? container.decode(Int.self) { value = val }
-        else if let val = try? container.decode(Double.self) { value = val }
-        else if let val = try? container.decode(String.self) { value = val }
-        else if let val = try? container.decode([String: AnyCodable].self) { value = val }
-        else if let val = try? container.decode([AnyCodable].self) { value = val }
-        else { throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unsupported type") }
+        if let v = try? container.decode(Bool.self) { value = v }
+        else if let v = try? container.decode(Int.self) { value = v }
+        else if let v = try? container.decode(Double.self) { value = v }
+        else if let v = try? container.decode(String.self) { value = v }
+        else if let v = try? container.decode([String: AnyCodable].self) { value = v }
+        else if let v = try? container.decode([AnyCodable].self) { value = v }
+        else { throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unsupported JSON type") }
     }
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         switch value {
-        case let val as Bool: try container.encode(val)
-        case let val as Int: try container.encode(val)
-        case let val as Double: try container.encode(val)
-        case let val as String: try container.encode(val)
-        case let val as [String: AnyCodable]: try container.encode(val)
-        case let val as [AnyCodable]: try container.encode(val)
+        case let v as Bool: try container.encode(v)
+        case let v as Int: try container.encode(v)
+        case let v as Double: try container.encode(v)
+        case let v as String: try container.encode(v)
+        case let v as [String: AnyCodable]: try container.encode(v)
+        case let v as [AnyCodable]: try container.encode(v)
         default:
-            let context = EncodingError.Context(codingPath: container.codingPath, debugDescription: "Unsupported type")
-            throw EncodingError.invalidValue(value, context)
+            throw EncodingError.invalidValue(value, .init(codingPath: container.codingPath, debugDescription: "Unsupported type"))
         }
     }
 }
+
 
 // MARK: - CropActivity Model
 
 struct CropActivity: Identifiable, Codable {
     let id: UUID
-    let cropId: UUID
-    let stage: CropStage
-    let date: Date
+    var batchId: UUID
+    var stage: CropStage
+    var date: Date
     var details: [String: AnyCodable]
-    var images: [Data]? // Optional: store image data locally
-    let createdAt: Date
-    
+    var images: [String]  // Supabase stores this in jsonb[]
+    var createdAt: Date
+
     enum CodingKeys: String, CodingKey {
         case id
-        case cropId = "batch_id"
+        case batchId = "batch_id"
         case stage
         case date
         case details
@@ -73,6 +78,7 @@ struct CropActivity: Identifiable, Codable {
         case createdAt = "created_at"
     }
 }
+
 
 // MARK: - CropBatch Model
 

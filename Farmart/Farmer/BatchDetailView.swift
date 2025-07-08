@@ -1,9 +1,8 @@
-//
 //  BatchDetailView.swift
 //  Farmart
 //
 //  Created by Anubhav Dubey on 07/07/25.
-//
+
 import SwiftUI
 import Foundation
 
@@ -15,10 +14,10 @@ struct BatchDetailView: View {
     @State private var showFinalizeAlert = false
 
     var activities: [CropActivity] { store.activities(for: batch) }
-    
+
     // Helper function to sort details
-    func sortedDetails(for activity: CropActivity) -> [(key: String, value: AnyCodable)] {
-        activity.details.sorted { $0.key < $1.key }
+    func sortedDetails(for activity: CropActivity) -> [DetailItem] {
+        activity.details.map { DetailItem(key: $0.key, value: $0.value) }.sorted { $0.key < $1.key }
     }
 
     var body: some View {
@@ -42,20 +41,9 @@ struct BatchDetailView: View {
                                 Text(activity.stage.rawValue.capitalized).bold()
                                 Text("Date: \(activity.date.formatted(date: .abbreviated, time: .omitted))")
                                 ActivityDetailsView(details: sortedDetails(for: activity))
-                                if let images = activity.images, !images.isEmpty {
-                                    ScrollView(.horizontal, showsIndicators: false) {
-                                        HStack {
-                                            ForEach(images, id: \.self) { data in
-                                                if let uiImage = UIImage(data: data) {
-                                                    Image(uiImage: uiImage)
-                                                        .resizable()
-                                                        .scaledToFill()
-                                                        .frame(width: 60, height: 60)
-                                                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                                                }
-                                            }
-                                        }
-                                    }
+                                let images = activity.images
+                                if(!images.isEmpty) {
+                                    ActivityImagesView(images: images)
                                 }
                             }
                             .padding(.vertical, 4)
@@ -80,17 +68,15 @@ struct BatchDetailView: View {
             }
         }
         .sheet(item: $selectedStage) { stage in
-            CropActivityForm(cropId: batch.id, stage: stage) { activity in
-                Task{
-                    await store.addActivity(activity)
+            CropActivityForm(cropId: batch.id, stage: stage) { activity, uiImages in
+                Task {
+                    await store.addActivityWithImages(activity, images: uiImages)
                 }
             }
         }
         .alert("Finalize Batch", isPresented: $showFinalizeAlert) {
             Button("Finalize", role: .destructive) {
                 // TODO: Implement finalizeBatch logic with Supabase if needed
-                // let hash = UUID().uuidString.prefix(12)
-                // store.finalizeBatch(batch, blockchainHash: String(hash))
             }
             Button("Cancel", role: .cancel) {}
         } message: {
@@ -104,21 +90,53 @@ struct BatchDetailView: View {
     }
 }
 
+struct DetailItem: Identifiable {
+    let id = UUID()
+    let key: String
+    let value: AnyCodable
+}
+
 struct ActivityDetailsView: View {
-    let details: [(key: String, value: AnyCodable)]
+    let details: [DetailItem]
     var body: some View {
-        ForEach(details, id: \.key) { detail in
+        ForEach(details) { detail in
             Text("\(detail.key.capitalized): \(detail.value.value)").font(.caption)
         }
     }
 }
 
+struct ActivityImagesView: View {
+    let images: [String]
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack {
+                ForEach(images, id: \.self) { urlString in
+                    if let url = URL(string: urlString) {
+                        AsyncImage(url: url) { image in
+                            image.resizable()
+                        } placeholder: {
+                            ProgressView()
+                        }
+                        .scaledToFill()
+                        .frame(width: 60, height: 60)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+                }
+            }
+        }
+        .frame(height: 70)
+    }
+}
+
+
 struct StagePickerSheet: View {
     var onPick: (CropStage) -> Void
     @Environment(\.dismiss) var dismiss
+
     var body: some View {
         NavigationView {
-            List(CropStage.allCases) { stage in
+            List(CropStage.allCases, id: \.self) { stage in
                 Button(stage.rawValue.capitalized) {
                     onPick(stage)
                     dismiss()

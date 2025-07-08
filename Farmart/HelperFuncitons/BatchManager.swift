@@ -1,5 +1,6 @@
 import Foundation
 import Supabase
+import UIKit
 
 class BatchManager {
     static let shared = BatchManager()
@@ -7,7 +8,7 @@ class BatchManager {
     
     private init() {}
     
-    // Insert a new batch
+    //MARK: - Insert a new batch
     func insertBatch(_ batch: CropBatch) async throws {
         let _ = try await client.database
             .from("batch")
@@ -15,7 +16,7 @@ class BatchManager {
             .execute()
     }
     
-    // Fetch all batches for a farmer
+    //MARK: - Fetch all batches for a farmer
     func fetchBatches(for farmerId: UUID) async throws -> [CropBatch] {
         let response = try await client.database
             .from("batch")
@@ -69,7 +70,7 @@ class BatchManager {
     }
 
     
-    // Insert a new activity
+    //MARK: -  Insert a new activity
     func insertActivity(_ activity: CropActivity) async throws {
         let _ = try await client.database
             .from("activity")
@@ -77,7 +78,7 @@ class BatchManager {
             .execute()
     }
     
-    // Fetch activities for a batch
+    //MARK: -  Fetch activities for a batch
     func fetchActivities(for batchId: UUID) async throws -> [CropActivity] {
         let response = try await client.database
             .from("activity")
@@ -128,7 +129,7 @@ class BatchManager {
     }
 
     
-    // Fetch batches with activities (join)
+    //MARK: -  Fetch batches with activities (join)
     struct BatchWithActivities: Decodable {
         let id: UUID
         let crop_type: String
@@ -154,4 +155,36 @@ class BatchManager {
         }
         return batches
     }
-} 
+
+    
+    //MARK: -  Uploads a UIImage to Supabase Storage and returns the public URL string
+    func uploadImageToSupabase(image: UIImage, fileName: String, bucket: String = "activity-images") async throws -> String {
+        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+            throw NSError(domain: "ImageConversion", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to convert image to JPEG"])
+        }
+        let filePath = "activities/\(fileName).jpg"
+        _ = try await client.storage.from(bucket).upload(
+            path: filePath,
+            file: imageData,
+            options: FileOptions(contentType: "image/jpeg", upsert: true)
+        )
+        // Construct the public URL manually
+        let publicURL = "\(AuthManager.shared.getSupabaseURL())/storage/v1/object/public/\(bucket)/\(filePath)"
+        return publicURL
+    }
+
+    //MARK: -  Updates the images array for an activity in the activity table
+    struct ActivityImagesUpdate: Encodable {
+        let id: String
+        let images: [String]
+    }
+    
+    func updateActivityImages(activityId: UUID, imageURLs: [String]) async throws {
+        let updates = ActivityImagesUpdate(id: activityId.uuidString, images: imageURLs)
+        _ = try await client.database
+            .from("activity")
+            .update(updates)
+            .eq("id", value: activityId.uuidString)
+            .execute()
+    }
+}

@@ -1,10 +1,3 @@
-//
-//  CropActivityForm.swift
-//  Farmart
-//
-//  Created by Anubhav Dubey on 07/07/25.
-//
-
 import SwiftUI
 import PhotosUI
 import Foundation
@@ -12,21 +5,24 @@ import Foundation
 struct CropActivityForm: View {
     let cropId: UUID
     let stage: CropStage
-    var onSave: (CropActivity) -> Void
+    var onSave: (CropActivity, [UIImage]) -> Void
     @Environment(\.dismiss) var dismiss
 
     @State private var details: [String: AnyCodable] = [:]
     @State private var images: [Data] = []
     @State private var date: Date = Date()
     @State private var photoItems: [PhotosPickerItem] = []
+    @State private var isUploading = false
 
     var body: some View {
         NavigationView {
             Form {
                 DatePicker("Date", selection: $date, displayedComponents: .date)
+
                 Section(header: Text("Details")) {
                     fieldsForStage
                 }
+
                 if !images.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack {
@@ -42,6 +38,7 @@ struct CropActivityForm: View {
                         }
                     }
                 }
+
                 PhotosPicker(selection: $photoItems, maxSelectionCount: 3, matching: .images) {
                     Label("Add Photo(s)", systemImage: "photo.on.rectangle")
                 }
@@ -54,26 +51,26 @@ struct CropActivityForm: View {
                         }
                     }
                 }
+
+                if isUploading {
+                    ProgressView("Uploading images...")
+                }
             }
-            .navigationTitle(stage.rawValue.capitalized + " Activity")
+            .navigationTitle(stage.rawValue.capitalized)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        let activity = CropActivity(
-                            id: UUID(),
-                            cropId: cropId,
-                            stage: stage,
-                            date: date,
-                            details: details,
-                            images: images.isEmpty ? nil : images,
-                            createdAt: Date()
-                        )
-                        onSave(activity)
+                        Task {
+                            await saveActivity()
+                        }
+                    }
+                    .disabled(isUploading)
+                }
+
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
                         dismiss()
                     }
-                }
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
                 }
             }
         }
@@ -132,5 +129,40 @@ struct CropActivityForm: View {
             set: { details[key] = AnyCodable($0) }
         )
     }
-}
 
+    // MARK: - Upload Images and Save Activity
+    func saveActivity() async {
+        isUploading = true
+        var uploadedURLs: [String] = []
+        var uiImages: [UIImage] = []
+
+        do {
+            for data in images {
+                if let image = UIImage(data: data) {
+                    let fileName = UUID().uuidString
+                    let url = try await BatchManager.shared.uploadImageToSupabase(image: image, fileName: fileName)
+                    uploadedURLs.append(url)
+                    uiImages.append(image)
+                }
+            }
+
+            let activity = CropActivity(
+                id: UUID(),
+                batchId: cropId,
+                stage: stage,
+                date: date,
+                details: details,
+                images: uploadedURLs,
+                createdAt: Date()
+            )
+
+            onSave(activity, uiImages)
+            dismiss()
+
+        } catch {
+            print("Image upload failed:", error.localizedDescription)
+        }
+
+        isUploading = false
+    }
+}
