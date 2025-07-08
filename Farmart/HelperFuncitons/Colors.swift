@@ -16,6 +16,7 @@ extension Color {
     static let lightBlue = Color(hex: "56BDF5")
     static let Background = Color(hex: "FFFFFF")
     static let skyBlue = Color(hex: "ABDFF7")
+    static let TextColor = Color(hex: "000000")
 }
 
 extension Color {

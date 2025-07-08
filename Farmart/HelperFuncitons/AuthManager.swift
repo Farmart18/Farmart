@@ -6,6 +6,8 @@ import CryptoKit
 class AuthManager: ObservableObject {
     static let shared = AuthManager()
     
+    @Published var currentFarmerId: UUID?
+    
     private weak var safariVC: SFSafariViewController?
     private var continuation: CheckedContinuation<Farmer, Error>?
     
@@ -28,12 +30,14 @@ class AuthManager: ObservableObject {
         let name = metadata["name"] as? String ?? ""
         let profileImage = metadata["profile_image"] as? String ?? ""
         
-        return Farmer(
+        let farmer = Farmer(
             id: user.id,
             name:  name,
             email: user.email ?? "",
             profileImage: URL(string: profileImage)
         )
+        self.currentFarmerId = user.id
+        return farmer
     }
     
     func signInWithGoogle(idToken: String) async throws{
@@ -92,6 +96,10 @@ class AuthManager: ObservableObject {
             print("Detailed Google sign-in error:", error)
             throw error
         }
+    }
+    
+    func getSupabaseURL() -> String {
+        return "\(supabaseURL)"
     }
     
 //    private func sha256(_ input: String) -> String {
