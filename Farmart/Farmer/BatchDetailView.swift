@@ -96,6 +96,11 @@ struct BatchDetailView: View {
         } message: {
             Text("Are you sure you want to finalize this batch? This will add it to the blockchain and prevent further edits.")
         }
+        .onAppear {
+            Task {
+                await store.loadActivities(for: batch.id)
+            }
+        }
     }
 }
 

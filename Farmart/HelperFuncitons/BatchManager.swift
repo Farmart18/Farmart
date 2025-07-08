@@ -85,11 +85,48 @@ class BatchManager {
             .eq("batch_id", value: batchId.uuidString)
             .order("date", ascending: true)
             .execute()
-        guard let activities = response.value as? [CropActivity] else {
+        
+        let data = response.data
+
+        // Configure decoder
+        let decoder = JSONDecoder()
+//        decoder.keyDecodingStrategy = .convertFromSnakeCase
+
+        // Setup ISO 8601 with fractional seconds
+        let isoFormatter = ISO8601DateFormatter()
+        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+        // Fallback for plain date format
+        let simpleFormatter = DateFormatter()
+        simpleFormatter.dateFormat = "yyyy-MM-dd"
+        simpleFormatter.locale = Locale(identifier: "en_US_POSIX")
+
+        decoder.dateDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            let dateStr = try container.decode(String.self)
+
+            if let isoDate = isoFormatter.date(from: dateStr) {
+                return isoDate
+            } else if let shortDate = simpleFormatter.date(from: dateStr) {
+                return shortDate
+            } else {
+                throw DecodingError.dataCorruptedError(
+                    in: container,
+                    debugDescription: "Unrecognized date format: \(dateStr)"
+                )
+            }
+        }
+
+        do {
+            let activities = try decoder.decode([CropActivity].self, from: data)
+            return activities
+        } catch {
+            print("Decoding error in fetchActivities: \(error)")
+            print("Raw JSON:", String(data: data, encoding: .utf8) ?? "nil")
             return []
         }
-        return activities
     }
+
     
     // Fetch batches with activities (join)
     struct BatchWithActivities: Decodable {
