@@ -15,6 +15,7 @@ struct FarmartApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+//            FarmerView()
                 .environmentObject(authManager)
                 .onAppear {
                     configureGoogleSignIn()

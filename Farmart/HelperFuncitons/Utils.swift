@@ -31,3 +31,11 @@ struct OnboardingView_Previews: PreviewProvider {
         OnboardingView()
     }
 } 
+
+func stringValue(_ value: AnyCodable?) -> String {
+    if let str = value?.value as? String { return str }
+    if let int = value?.value as? Int { return String(int) }
+    if let dbl = value?.value as? Double { return String(dbl) }
+    if let bool = value?.value as? Bool { return bool ? "true" : "false" }
+    return ""
+}
