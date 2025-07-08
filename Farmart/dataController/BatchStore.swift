@@ -10,7 +10,7 @@ import UIKit
 
 class BatchStore: ObservableObject {
     @Published var batches: [CropBatch] = []
-    @Published var activities: [CropActivity] = []
+    @Published var activitiesByBatch: [UUID: [CropActivity]] = [:]
     @Published var isLoading: Bool = false
     @Published var error: Error?
     
@@ -27,6 +27,12 @@ class BatchStore: ObservableObject {
             await MainActor.run {
                 self.batches = fetched
                 self.isLoading = false
+            }
+            // Load activities for all batches
+            for batch in fetched {
+                Task {
+                    await self.loadActivities(for: batch.id)
+                }
             }
         } catch {
             await MainActor.run {
@@ -61,7 +67,7 @@ class BatchStore: ObservableObject {
         do {
             let fetched = try await BatchManager.shared.fetchActivities(for: batchId)
             await MainActor.run {
-                self.activities = fetched
+                self.activitiesByBatch[batchId] = fetched
                 self.isLoading = false
             }
         } catch {
@@ -110,7 +116,7 @@ class BatchStore: ObservableObject {
     
     // Get activities for a batch from the local cache
     func activities(for batch: CropBatch) -> [CropActivity] {
-        activities.filter { $0.batchId == batch.id }
+        activitiesByBatch[batch.id] ?? []
     }
     
     // Optionally, add methods for finalizeBatch, deleteBatch, etc., using BatchManager
