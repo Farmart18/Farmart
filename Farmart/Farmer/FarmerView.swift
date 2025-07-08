@@ -28,10 +28,16 @@ struct FarmerView: View {
             }
             .task {
                 print("Current farmerId:", authManager.currentFarmerId as Any)
+
                 if let farmerId = authManager.currentFarmerId {
-                    await store.loadBatches(for: farmerId)
+                    do {
+                        try await store.loadBatches(for: farmerId)
+                    } catch {
+                        print("Failed to load batches:", error)
+                    }
                 }
             }
+
         }
     }
 }

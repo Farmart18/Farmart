@@ -42,7 +42,7 @@ class BatchStore: ObservableObject {
         do {
             try await BatchManager.shared.insertBatch(batch)
             // Optionally reload batches
-            await loadBatches(for: batch.farmerId!)
+            await loadBatches(for: batch.farmerId)
             await MainActor.run { self.isLoading = false }
         } catch {
             await MainActor.run {

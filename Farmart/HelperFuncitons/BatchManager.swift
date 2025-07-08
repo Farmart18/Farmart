@@ -23,21 +23,51 @@ class BatchManager {
             .eq("farmer_id", value: farmerId.uuidString)
             .order("created_at", ascending: false)
             .execute()
+        
         let data = response.data
+        
         do {
+            
             let decoder = JSONDecoder()
-            decoder.keyDecodingStrategy = .convertFromSnakeCase
-            decoder.dateDecodingStrategy = .iso8601
+//            decoder.keyDecodingStrategy = .convertFromSnakeCase
+
+            // Setup ISO8601 formatter with fractional seconds
+            let isoFormatter = ISO8601DateFormatter()
+            isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+            // Setup formatter for "yyyy-MM-dd"
+            let simpleFormatter = DateFormatter()
+            simpleFormatter.dateFormat = "yyyy-MM-dd"
+            simpleFormatter.locale = Locale(identifier: "en_US_POSIX")
+
+            // Use custom date decoding strategy
+            decoder.dateDecodingStrategy = .custom { decoder in
+                let container = try decoder.singleValueContainer()
+                let dateStr = try container.decode(String.self)
+
+                if let date = isoFormatter.date(from: dateStr) {
+                    return date
+                } else if let shortDate = simpleFormatter.date(from: dateStr) {
+                    return shortDate
+                } else {
+                    throw DecodingError.dataCorruptedError(
+                        in: container,
+                        debugDescription: "Unrecognized date format: \(dateStr)"
+                    )
+                }
+            }
+
+            
             let batches = try decoder.decode([CropBatch].self, from: data)
             return batches
+            
         } catch {
             print("Decoding error:", error)
             print("Raw JSON:", String(data: data, encoding: .utf8) ?? "nil")
             return []
         }
-        
-        return []
     }
+
     
     // Insert a new activity
     func insertActivity(_ activity: CropActivity) async throws {

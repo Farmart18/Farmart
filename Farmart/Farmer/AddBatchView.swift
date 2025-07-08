@@ -4,7 +4,6 @@
 //
 //  Created by Anubhav Dubey on 07/07/25.
 //
-
 import SwiftUI
 
 struct AddBatchView: View {
@@ -41,7 +40,8 @@ struct AddBatchView: View {
                             notes: notes.isEmpty ? nil : notes,
                             isFinalized: false,
                             blockchainHash: nil,
-                            farmerId: farmerId
+                            farmerId: farmerId,
+                            createdAt: Date.now
                         )
                         Task {
                             await store.addBatch(batch)
