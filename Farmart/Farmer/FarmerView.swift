@@ -17,6 +17,7 @@ struct FarmerView: View {
                 }
             }
             .navigationTitle("Farmart")
+            .navigationBarBackButtonHidden(true)
             .toolbar {
                 Button("Add") { showAddBatch = true }
             }

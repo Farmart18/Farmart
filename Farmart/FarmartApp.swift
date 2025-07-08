@@ -10,17 +10,31 @@ import GoogleSignIn
 
 @main
 struct FarmartApp: App {
-    @StateObject private var authManager = AuthManager.shared
+    @StateObject var authManager = AuthManager.shared
+    @State private var isLoggedIn = UserDefaults.standard.bool(forKey: "isLoggedIn")
+    @State private var farmerId: UUID? = {
+        if let idString = UserDefaults.standard.string(forKey: "farmerId") {
+            return UUID(uuidString: idString)
+        }
+        return nil
+    }()
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
-//            FarmerView()
-                .environmentObject(authManager)
-                .onAppear {
-                    configureGoogleSignIn()
+            Group {
+                if isLoggedIn {
+                    FarmerView()
+                        .environmentObject(authManager)
+                } else {
+                    OnboardingView(isLoggedIn: $isLoggedIn)
+                        .environmentObject(authManager)
                 }
-               
+            }
+            .onAppear {
+                if let savedId = farmerId {
+                    authManager.currentFarmerId = savedId
+                }
+            }
         }
     }
     

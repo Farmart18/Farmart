@@ -7,8 +7,8 @@ enum OnboardingRoute: Hashable {
 }
 
 struct OnboardingView: View {
+    @Binding var isLoggedIn: Bool
     @State private var selection: OnboardingRoute?
-    @State private var isLoggedIn = false
     @EnvironmentObject var authManager: AuthManager
     @State private var isLoading = false
     @State private var error: Error?
@@ -68,15 +68,19 @@ struct OnboardingView: View {
                             do {
                                 let signInGoogle = SignInGoogle()
                                 let result = try await signInGoogle.startSignInWithGoogleFlow()
-                               let farmer = try await authManager.signInWithGoogle(idToken: result.idToken)
+                                let _ = try await authManager.signInWithGoogle(idToken: result.idToken)
+                                // Fetch and set current farmer session
+                                let _ = try await authManager.getCurrentSession()
                                 isLoggedIn = true
+                                UserDefaults.standard.set(true, forKey: "isLoggedIn")
+                                if let farmerId = authManager.currentFarmerId {
+                                    UserDefaults.standard.set(farmerId.uuidString, forKey: "farmerId")
+                                }
                             } catch {
                                 self.error = error
                             }
                             isLoading = false
                         }
-                        
-                       
                     }) {
                         Text("Continue as Farmer")
                             .font(.system(size: 19, weight: .semibold))
@@ -105,11 +109,6 @@ struct OnboardingView: View {
                     ConsumerView()
                 case .farmer:
                     FarmerView()
-                }
-            }
-            .onChange(of: isLoggedIn) {
-                if isLoggedIn {
-                    selection = .farmer
                 }
             }
         }

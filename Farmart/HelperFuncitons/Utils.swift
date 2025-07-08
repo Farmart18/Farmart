@@ -26,11 +26,11 @@ struct RoundedCorner: Shape {
     }
 }
 
-struct OnboardingView_Previews: PreviewProvider {
-    static var previews: some View {
-        OnboardingView()
-    }
-} 
+//struct OnboardingView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        OnboardingView(isLoggedIn: false)
+//    }
+//} 
 
 func stringValue(_ value: AnyCodable?) -> String {
     if let str = value?.value as? String { return str }

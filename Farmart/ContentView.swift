@@ -10,15 +10,14 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var authManager: AuthManager
     @State private var isCheckingAuth = true
+    @State private var isLoggedIn = false
     
     var body: some View {
         Group {
             if isCheckingAuth {
-              
                 ProgressView("Loading")
             } else {
-                
-                OnboardingView()
+                OnboardingView(isLoggedIn: $isLoggedIn)
                     .environmentObject(authManager)
             }
         }
@@ -30,11 +29,12 @@ struct ContentView: View {
     private func checkAuthStatus() {
         Task {
             do {
-               
                 let _ = try await authManager.getCurrentSession()
+                isLoggedIn = true
             } catch {
                 // User is not authenticated, show onboarding
                 print("No current session: \(error)")
+                isLoggedIn = false
             }
             isCheckingAuth = false
         }
