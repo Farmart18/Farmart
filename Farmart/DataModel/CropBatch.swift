@@ -105,3 +105,14 @@ struct CropBatch: Identifiable, Codable {
         case createdAt = "created_at"
     }
 }
+
+
+struct BatchUpdate: Encodable {
+    let id: UUID  
+    let crop_type: String
+    let variety: String
+    let sowing_date: Date
+    let notes: String?
+    let is_finalized: Bool
+    let blockchain_hash: String?
+}

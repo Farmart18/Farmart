@@ -12,9 +12,15 @@ struct BatchDetailView: View {
     @State private var showStagePicker = false
     @State private var selectedStage: CropStage? = nil
     @State private var showFinalizeAlert = false
+    @State private var showVerificationAlert = false
+    @State private var showQRCode = false
     @Environment(\.dismiss) var dismiss
 
 
+    var verificationURL: String {
+           "https://yourdomain.com/verify/\(batch.id.uuidString)"
+       }
+    
     var activities: [CropActivity] { store.activities(for: batch) }
 
     // Helper function to sort details
@@ -30,9 +36,20 @@ struct BatchDetailView: View {
                     Text("Variety: \(batch.variety)")
                     Text("Sowing: \(batch.sowingDate.formatted(date: .abbreviated, time: .omitted))")
                     if let notes = batch.notes { Text("Notes: \(notes)") }
-                    if batch.isFinalized, let hash = batch.blockchainHash {
-                        Text("Blockchain Hash: \(hash)").font(.caption).foregroundColor(.green)
+                    if batch.isFinalized {
+                        Label("Secured on Blockchain", systemImage: "lock.shield.fill")
+                            .foregroundColor(.green)
                     }
+                    
+                    if batch.isFinalized {
+                        Button(action: { showQRCode = true }) {
+                            Label("Generate Verification QR", systemImage: "qrcode")
+                        }
+                        .buttonStyle(.bordered)
+                        .padding()
+                    }
+                    
+                    
                 }
                 Section(header: Text("Activities / Stages")) {
                     if activities.isEmpty {
@@ -53,15 +70,26 @@ struct BatchDetailView: View {
                     }
                 }
             }
-            HStack {
-                Button("Add Activity/Stage") { showStagePicker = true }
-                    .buttonStyle(.borderedProminent)
-                if !batch.isFinalized {
-                    Button("Finalize Batch") { showFinalizeAlert = true }
-                        .buttonStyle(.bordered)
-                }
+            .sheet(isPresented: $showQRCode) {
+               QRCodeView(batch: batch, url: verificationURL)
+           }
+           
+            if !batch.isFinalized {
+                HStack {
+                   Button("Add Activity/Stage") {
+                       showStagePicker = true
+                   }
+                   .buttonStyle(.borderedProminent)
+                   
+                   Button("Finalize Batch") {
+                       showFinalizeAlert = true
+                   }
+                   .buttonStyle(.bordered)
+               }
+               .padding()
             }
-            .padding()
+            
+            
         }
         .navigationTitle("Batch details")
         .toolbar {
@@ -84,7 +112,9 @@ struct BatchDetailView: View {
         }
         .alert("Finalize Batch", isPresented: $showFinalizeAlert) {
             Button("Finalize", role: .destructive) {
-                // TODO: Implement finalizeBatch logic with Supabase if needed
+                Task {
+                    await store.finalizeBatch(batch)
+                }
             }
             Button("Cancel", role: .cancel) {}
         } message: {
@@ -155,3 +185,31 @@ struct StagePickerSheet: View {
     }
 }
 
+struct QRCodeView: View {
+    let batch: CropBatch
+    let url: String
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            Text("Batch Verification")
+                .font(.title)
+            
+            if let qrImage = QRCodeGenerator.generate(from: url) {
+                Image(uiImage: qrImage)
+                    .interpolation(.none)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 200, height: 200)
+            }
+            
+            Text("Scan to verify this batch")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            
+            Text("Batch ID: \(batch.id.uuidString)")
+                .font(.footnote)
+                .textSelection(.enabled)
+        }
+        .padding()
+    }
+}

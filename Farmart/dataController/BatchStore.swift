@@ -122,3 +122,44 @@ class BatchStore: ObservableObject {
     // Optionally, add methods for finalizeBatch, deleteBatch, etc., using BatchManager
 }
 
+
+extension BatchStore {
+    @MainActor
+    func finalizeBatch(_ batch: CropBatch) async {
+        print("Finalize function started") // Add this
+        await MainActor.run { self.isLoading = true }
+        do {
+            print("Getting activities") // Add this
+            let activities = activitiesByBatch[batch.id] ?? []
+            print("Activities count:", activities.count) // Add this
+            
+            let hash = BlockchainService.shared.generateBlockchainHash(
+                for: batch,
+                activities: activities
+            )
+            print("Generated hash:", hash) // Add this
+            
+            // Create updated batch object
+            var finalizedBatch = batch
+            finalizedBatch.isFinalized = true
+            finalizedBatch.blockchainHash = hash
+            
+            print("Updating batch") // Add this
+            try await BatchManager.shared.updateBatch(finalizedBatch)
+            print("Batch updated successfully") // Add this
+            
+            // Refresh data
+            await loadBatches(for: batch.farmerId)
+            
+        } catch {
+            print("Finalization error:", error) // Add this
+            await MainActor.run {
+                self.error = error
+                print("Finalization failed:", error.localizedDescription)
+            }
+        }
+        await MainActor.run { self.isLoading = false }
+        print("Finalize function completed") // Add this
+    }
+}
+

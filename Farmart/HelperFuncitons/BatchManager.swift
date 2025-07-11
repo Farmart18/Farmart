@@ -187,4 +187,92 @@ class BatchManager {
             .eq("id", value: activityId.uuidString)
             .execute()
     }
+    
+//    func updateBatch(_ batch: CropBatch) async throws {
+//        print("Attempting to update batch with ID:", batch.id) // Add this
+//        let updates = BatchUpdate(
+//            crop_type: batch.cropType,
+//            variety: batch.variety,
+//            sowing_date: batch.sowingDate,
+//            notes: batch.notes,
+//            is_finalized: batch.isFinalized,
+//            blockchain_hash: batch.blockchainHash
+//        )
+//        
+//        print("Update payload:", updates) // Add this
+//        
+//        let result = try await client.database
+//            .from("batch")
+//            .update(updates)
+//            .eq("id", value: batch.id.uuidString)
+//            .execute()
+//        
+//        print("Update result:", result) // Add this
+//    }
+    
+    func updateBatch(_ batch: CropBatch) async throws {
+        print("Attempting to update batch with ID:", batch.id)
+        
+        let dateFormatter = ISO8601DateFormatter()
+        dateFormatter.formatOptions = [.withInternetDateTime]
+        
+        let updates = BatchUpdate(
+            id: batch.id,  // Include the ID
+            crop_type: batch.cropType,
+            variety: batch.variety,
+            sowing_date: batch.sowingDate,
+            notes: batch.notes,
+            is_finalized: batch.isFinalized,
+            blockchain_hash: batch.blockchainHash
+        )
+        
+        // Convert to dictionary to inspect
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let data = try encoder.encode(updates)
+        let dict = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        print("Update payload as dictionary:", dict ?? "nil")
+        
+        let result = try await client.database
+            .from("batch")
+            .update(updates)
+            .eq("id", value: batch.id.uuidString)
+            .execute()
+        
+        print("Update result:", result)
+        
+        // Verify the update by fetching immediately
+        let verify = try await client.database
+            .from("batch")
+            .select()
+            .eq("id", value: batch.id.uuidString)
+            .single()
+            .execute()
+        
+        print("Verification fetch:", String(data: verify.data, encoding: .utf8) ?? "nil")
+    }
+}
+
+
+extension BatchManager {
+    func fetchBatchForVerification(batchId: String) async throws -> CropBatch {
+        let response = try await client.database
+            .from("batch")
+            .select()
+            .eq("id", value: batchId)
+            .single()
+            .execute()
+        
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        
+        do {
+            let batch = try decoder.decode(CropBatch.self, from: response.data)
+            return batch
+        } catch {
+            print("Decoding error: \(error)")
+            print("Raw response: \(String(data: response.data, encoding: .utf8) ?? "nil")")
+            throw error
+        }
+    }
 }
