@@ -13,9 +13,14 @@ struct BatchDetailView: View {
     @State private var selectedStage: CropStage? = nil
     @State private var showFinalizeAlert = false
     @State private var showVerificationAlert = false
+    @State private var showQRCode = false
     @Environment(\.dismiss) var dismiss
 
 
+    var verificationURL: String {
+           "https://yourdomain.com/verify/\(batch.id.uuidString)"
+       }
+    
     var activities: [CropActivity] { store.activities(for: batch) }
 
     // Helper function to sort details
@@ -35,6 +40,16 @@ struct BatchDetailView: View {
                         Label("Secured on Blockchain", systemImage: "lock.shield.fill")
                             .foregroundColor(.green)
                     }
+                    
+                    if batch.isFinalized {
+                        Button(action: { showQRCode = true }) {
+                            Label("Generate Verification QR", systemImage: "qrcode")
+                        }
+                        .buttonStyle(.bordered)
+                        .padding()
+                    }
+                    
+                    
                 }
                 Section(header: Text("Activities / Stages")) {
                     if activities.isEmpty {
@@ -55,6 +70,9 @@ struct BatchDetailView: View {
                     }
                 }
             }
+            .sheet(isPresented: $showQRCode) {
+               QRCodeView(batch: batch, url: verificationURL)
+           }
            
             if !batch.isFinalized {
                 HStack {
@@ -167,3 +185,31 @@ struct StagePickerSheet: View {
     }
 }
 
+struct QRCodeView: View {
+    let batch: CropBatch
+    let url: String
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            Text("Batch Verification")
+                .font(.title)
+            
+            if let qrImage = QRCodeGenerator.generate(from: url) {
+                Image(uiImage: qrImage)
+                    .interpolation(.none)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 200, height: 200)
+            }
+            
+            Text("Scan to verify this batch")
+                .font(.caption)
+                .foregroundColor(.secondary)
+            
+            Text("Batch ID: \(batch.id.uuidString)")
+                .font(.footnote)
+                .textSelection(.enabled)
+        }
+        .padding()
+    }
+}
