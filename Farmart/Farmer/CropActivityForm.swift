@@ -92,27 +92,13 @@ struct CropActivityForm: View {
         case .seedTreatment:
             SeedTreatmentForm(details: $details)
         case .seedSowing:
-            Picker("Method", selection: binding(for: "method")) {
-                Text("Direct").tag("Direct")
-                Text("Broadcast").tag("Broadcast")
-                Text("Drilling").tag("Drilling")
-            }
+            SeedSowingForm(details: $details)
         case .irrigation:
-            Picker("Category", selection: binding(for: "category")) {
-                Text("Drip").tag("Drip")
-                Text("Sprinkler").tag("Sprinkler")
-                Text("Flood").tag("Flood")
-            }
-            TextField("Duration (hrs)", text: binding(for: "duration"))
-            TextField("Water Source", text: binding(for: "waterSource"))
+            IrrigationForm(details: $details)
         case .pesticide:
-            TextField("Name", text: binding(for: "name"))
+            PesticideForm(details: $details)
         case .harvest:
-            Picker("Method", selection: binding(for: "method")) {
-                Text("Hand").tag("Hand")
-                Text("Machine").tag("Machine")
-            }
-            TextField("Machine Type", text: binding(for: "machineType"))
+            HarvestingForm(details: $details)
         }
     }
 
