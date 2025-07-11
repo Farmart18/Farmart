@@ -1,22 +1,20 @@
 import SwiftUICore
 import SwiftUI
 
-struct FertilizerForm: View {
+struct ManureForm: View {
     @Binding var details: [String: AnyCodable]
-    @StateObject private var viewModel = SuggestionViewModel(category: "fertilizer")
+    @StateObject private var viewModel = SuggestionViewModel(category: "manure")
 
+    // Common manure application methods
     let applicationMethods = [
         "Broadcasting",
-        "Band Placement",
+        "Incorporation",
         "Side Dressing",
-        "Foliar Application",
-        "Fertigation",
-        "Deep Placement",
-        "Streaking Over Seed",
-        "Soil Incorporation"
+        "Top Dressing",
+        "Band Placement",
+        "Foliar Application"
     ]
-
-    // Helper to get/set quantity as Double safely
+    
     private var quantityBinding: Binding<Double> {
         Binding<Double>(
             get: {
@@ -34,7 +32,7 @@ struct FertilizerForm: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            // Name field with suggestions
+            // Name with suggestions
             TextField("Name", text: Binding(
                 get: {
                     viewModel.query.isEmpty ? stringValue(details["name"]) : viewModel.query
@@ -58,7 +56,7 @@ struct FertilizerForm: View {
                 .frame(height: 25)
             }
 
-            // Quantity with Stepper + TextField
+            // Quantity input with decimal keyboard
             HStack {
                 Text("Quantity (kg):")
 
@@ -73,7 +71,6 @@ struct FertilizerForm: View {
                 Stepper("", value: quantityBinding, in: 0...10000, step: 0.5)
                     .labelsHidden()
             }
-
 
             // Application Method Picker
             Picker("Application Method", selection: Binding(

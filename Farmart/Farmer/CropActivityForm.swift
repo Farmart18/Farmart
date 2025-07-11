@@ -13,6 +13,8 @@ struct CropActivityForm: View {
     @State private var date: Date = Date()
     @State private var photoItems: [PhotosPickerItem] = []
     @State private var isUploading = false
+    
+
 
     var body: some View {
         NavigationView {
@@ -80,46 +82,23 @@ struct CropActivityForm: View {
     var fieldsForStage: some View {
         switch stage {
         case .landPreparation:
-            TextField("Tool", text: binding(for: "tool"))
-            TextField("Fuel Type", text: binding(for: "fuelType"))
-            TextField("Carbon Emission (kg)", text: binding(for: "carbonEmission"))
-                .keyboardType(.decimalPad)
-            TextField("Method", text: binding(for: "method"))
-        case .fertilizer, .manure:
-            TextField("Name", text: binding(for: "name"))
-            TextField("Quantity (kg)", text: binding(for: "quantityKg"))
-                .keyboardType(.numberPad)
+            LandPreparationForm(details: $details)
+        case .fertilizer:
+            FertilizerForm(details: $details)
+        case .manure:
+            ManureForm(details: $details)
         case .seedSelection:
-            Picker("Category", selection: binding(for: "category")) {
-                Text("Hybrid").tag("Hybrid")
-                Text("Desi").tag("Desi")
-            }
-            TextField("Name", text: binding(for: "name"))
+            SeedSelection(details: $details)
         case .seedTreatment:
-            TextField("Fertilizer", text: binding(for: "fertilizer"))
-            TextField("Steps (comma separated)", text: binding(for: "steps"))
+            SeedTreatmentForm(details: $details)
         case .seedSowing:
-            Picker("Method", selection: binding(for: "method")) {
-                Text("Direct").tag("Direct")
-                Text("Broadcast").tag("Broadcast")
-                Text("Drilling").tag("Drilling")
-            }
+            SeedSowingForm(details: $details)
         case .irrigation:
-            Picker("Category", selection: binding(for: "category")) {
-                Text("Drip").tag("Drip")
-                Text("Sprinkler").tag("Sprinkler")
-                Text("Flood").tag("Flood")
-            }
-            TextField("Duration (hrs)", text: binding(for: "duration"))
-            TextField("Water Source", text: binding(for: "waterSource"))
+            IrrigationForm(details: $details)
         case .pesticide:
-            TextField("Name", text: binding(for: "name"))
+            PesticideForm(details: $details)
         case .harvest:
-            Picker("Method", selection: binding(for: "method")) {
-                Text("Hand").tag("Hand")
-                Text("Machine").tag("Machine")
-            }
-            TextField("Machine Type", text: binding(for: "machineType"))
+            HarvestingForm(details: $details)
         }
     }
 
