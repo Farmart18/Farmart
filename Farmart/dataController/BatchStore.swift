@@ -124,36 +124,42 @@ class BatchStore: ObservableObject {
 
 
 extension BatchStore {
-    // In BatchStore.swift
     @MainActor
     func finalizeBatch(_ batch: CropBatch) async {
+        print("Finalize function started") // Add this
         await MainActor.run { self.isLoading = true }
         do {
-            // Get activities for this batch
+            print("Getting activities") // Add this
             let activities = activitiesByBatch[batch.id] ?? []
+            print("Activities count:", activities.count) // Add this
             
-            // Generate blockchain hash
-            let hash = BlockchainService.shared.generateBlockchainHash(for: batch, activities: activities)
+            let hash = BlockchainService.shared.generateBlockchainHash(
+                for: batch,
+                activities: activities
+            )
+            print("Generated hash:", hash) // Add this
             
-            // Create update payload
-            var updatedBatch = batch
-            updatedBatch.isFinalized = true
-            updatedBatch.blockchainHash = hash
+            // Create updated batch object
+            var finalizedBatch = batch
+            finalizedBatch.isFinalized = true
+            finalizedBatch.blockchainHash = hash
             
-            // Update batch in Supabase using BatchManager
-            try await BatchManager.shared.insertBatch(updatedBatch)
+            print("Updating batch") // Add this
+            try await BatchManager.shared.updateBatch(finalizedBatch)
+            print("Batch updated successfully") // Add this
             
-            // Refresh the batch list
+            // Refresh data
             await loadBatches(for: batch.farmerId)
             
-            await MainActor.run { self.isLoading = false }
         } catch {
+            print("Finalization error:", error) // Add this
             await MainActor.run {
                 self.error = error
-                self.isLoading = false
-                print("Failed to finalize batch:", error)
+                print("Finalization failed:", error.localizedDescription)
             }
         }
+        await MainActor.run { self.isLoading = false }
+        print("Finalize function completed") // Add this
     }
 }
 
