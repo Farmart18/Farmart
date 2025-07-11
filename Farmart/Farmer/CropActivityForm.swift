@@ -86,9 +86,7 @@ struct CropActivityForm: View {
                 .keyboardType(.decimalPad)
             TextField("Method", text: binding(for: "method"))
         case .fertilizer, .manure:
-            TextField("Name", text: binding(for: "name"))
-            TextField("Quantity (kg)", text: binding(for: "quantityKg"))
-                .keyboardType(.numberPad)
+            FertilizerForm(details: $details)
         case .seedSelection:
             Picker("Category", selection: binding(for: "category")) {
                 Text("Hybrid").tag("Hybrid")
