@@ -23,7 +23,7 @@ class SuggestionViewModel: ObservableObject {
     private func fetchSuggestions(for query: String) {
         guard !query.isEmpty,
               let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-              let url = URL(string: "http://localhost:3000/search/\(category)/\(encodedQuery)") else {
+              let url = URL(string: "https://farmart-api-uw3m.onrender.com/search/\(category)/\(encodedQuery)") else {
             DispatchQueue.main.async {
                 self.suggestions = []
             }
