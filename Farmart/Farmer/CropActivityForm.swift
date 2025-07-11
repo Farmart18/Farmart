@@ -90,8 +90,7 @@ struct CropActivityForm: View {
         case .seedSelection:
             SeedSelection(details: $details)
         case .seedTreatment:
-            TextField("Fertilizer", text: binding(for: "fertilizer"))
-            TextField("Steps (comma separated)", text: binding(for: "steps"))
+            SeedTreatmentForm(details: $details)
         case .seedSowing:
             Picker("Method", selection: binding(for: "method")) {
                 Text("Direct").tag("Direct")
