@@ -13,6 +13,8 @@ struct CropActivityForm: View {
     @State private var date: Date = Date()
     @State private var photoItems: [PhotosPickerItem] = []
     @State private var isUploading = false
+    
+
 
     var body: some View {
         NavigationView {
@@ -80,11 +82,7 @@ struct CropActivityForm: View {
     var fieldsForStage: some View {
         switch stage {
         case .landPreparation:
-            TextField("Tool", text: binding(for: "tool"))
-            TextField("Fuel Type", text: binding(for: "fuelType"))
-            
-                .keyboardType(.decimalPad)
-            TextField("Method", text: binding(for: "method"))
+            LandPreparationForm(details: $details)
         case .fertilizer:
             FertilizerForm(details: $details)
         case .manure:
