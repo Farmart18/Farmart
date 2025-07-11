@@ -187,4 +187,22 @@ class BatchManager {
             .eq("id", value: activityId.uuidString)
             .execute()
     }
+    
+    
+//    func updateBatch(_ batch: CropBatch) async throws {
+//        let updates: [String: Any] = [
+//            "crop_type": batch.cropType,
+//            "variety": batch.variety,
+//            "sowing_date": batch.sowingDate,
+//            "notes": batch.notes as Any,
+//            "is_finalized": batch.isFinalized,
+//            "blockchain_hash": batch.blockchainHash as Any
+//        ]
+//        
+//        _ = try await client.database
+//            .from("batch")
+//            .update(updates)
+//            .eq("id", value: batch.id.uuidString)
+//            .execute()
+//    }
 }

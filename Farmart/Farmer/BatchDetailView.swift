@@ -12,6 +12,7 @@ struct BatchDetailView: View {
     @State private var showStagePicker = false
     @State private var selectedStage: CropStage? = nil
     @State private var showFinalizeAlert = false
+    @State private var showVerificationAlert = false
     @Environment(\.dismiss) var dismiss
 
 
@@ -59,6 +60,26 @@ struct BatchDetailView: View {
                 if !batch.isFinalized {
                     Button("Finalize Batch") { showFinalizeAlert = true }
                         .buttonStyle(.bordered)
+                } else {
+                    Button("Verify Blockchain") {
+                        showVerificationAlert = true
+                    }
+                    .alert(
+                        "Batch Verification",
+                        isPresented: $showVerificationAlert
+                    ) {
+                        Button("OK") {}
+                    } message: {
+                        let isValid = BlockchainService.shared.verifyBatch(
+                            batch: batch,
+                            activities: store.activities(for: batch))
+                        
+                        Text(isValid ?
+                            "Batch data is authentic and unchanged" :
+                            "WARNING: Batch records show unauthorized modifications"
+                        )
+                    }
+                    .buttonStyle(.bordered)
                 }
             }
             .padding()
@@ -84,7 +105,9 @@ struct BatchDetailView: View {
         }
         .alert("Finalize Batch", isPresented: $showFinalizeAlert) {
             Button("Finalize", role: .destructive) {
-                // TODO: Implement finalizeBatch logic with Supabase if needed
+                Task {
+                    await store.finalizeBatch(batch)
+                }
             }
             Button("Cancel", role: .cancel) {}
         } message: {

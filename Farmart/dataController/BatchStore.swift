@@ -122,3 +122,38 @@ class BatchStore: ObservableObject {
     // Optionally, add methods for finalizeBatch, deleteBatch, etc., using BatchManager
 }
 
+
+extension BatchStore {
+    // In BatchStore.swift
+    @MainActor
+    func finalizeBatch(_ batch: CropBatch) async {
+        await MainActor.run { self.isLoading = true }
+        do {
+            // Get activities for this batch
+            let activities = activitiesByBatch[batch.id] ?? []
+            
+            // Generate blockchain hash
+            let hash = BlockchainService.shared.generateBlockchainHash(for: batch, activities: activities)
+            
+            // Create update payload
+            var updatedBatch = batch
+            updatedBatch.isFinalized = true
+            updatedBatch.blockchainHash = hash
+            
+            // Update batch in Supabase using BatchManager
+            try await BatchManager.shared.insertBatch(updatedBatch)
+            
+            // Refresh the batch list
+            await loadBatches(for: batch.farmerId)
+            
+            await MainActor.run { self.isLoading = false }
+        } catch {
+            await MainActor.run {
+                self.error = error
+                self.isLoading = false
+                print("Failed to finalize batch:", error)
+            }
+        }
+    }
+}
+
