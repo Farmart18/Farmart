@@ -31,8 +31,9 @@ struct BatchDetailView: View {
                     Text("Variety: \(batch.variety)")
                     Text("Sowing: \(batch.sowingDate.formatted(date: .abbreviated, time: .omitted))")
                     if let notes = batch.notes { Text("Notes: \(notes)") }
-                    if batch.isFinalized, let hash = batch.blockchainHash {
-                        Text("Blockchain Hash: \(hash)").font(.caption).foregroundColor(.green)
+                    if batch.isFinalized {
+                        Label("Secured on Blockchain", systemImage: "lock.shield.fill")
+                            .foregroundColor(.green)
                     }
                 }
                 Section(header: Text("Activities / Stages")) {
@@ -54,35 +55,23 @@ struct BatchDetailView: View {
                     }
                 }
             }
-            HStack {
-                Button("Add Activity/Stage") { showStagePicker = true }
-                    .buttonStyle(.borderedProminent)
-                if !batch.isFinalized {
-                    Button("Finalize Batch") { showFinalizeAlert = true }
-                        .buttonStyle(.bordered)
-                } else {
-                    Button("Verify Blockchain") {
-                        showVerificationAlert = true
-                    }
-                    .alert(
-                        "Batch Verification",
-                        isPresented: $showVerificationAlert
-                    ) {
-                        Button("OK") {}
-                    } message: {
-                        let isValid = BlockchainService.shared.verifyBatch(
-                            batch: batch,
-                            activities: store.activities(for: batch))
-                        
-                        Text(isValid ?
-                            "Batch data is authentic and unchanged" :
-                            "WARNING: Batch records show unauthorized modifications"
-                        )
-                    }
-                    .buttonStyle(.bordered)
-                }
+           
+            if !batch.isFinalized {
+                HStack {
+                   Button("Add Activity/Stage") {
+                       showStagePicker = true
+                   }
+                   .buttonStyle(.borderedProminent)
+                   
+                   Button("Finalize Batch") {
+                       showFinalizeAlert = true
+                   }
+                   .buttonStyle(.bordered)
+               }
+               .padding()
             }
-            .padding()
+            
+            
         }
         .navigationTitle("Batch details")
         .toolbar {
