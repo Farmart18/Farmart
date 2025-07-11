@@ -254,3 +254,25 @@ class BatchManager {
 }
 
 
+extension BatchManager {
+    func fetchBatchForVerification(batchId: String) async throws -> CropBatch {
+        let response = try await client.database
+            .from("batch")
+            .select()
+            .eq("id", value: batchId)
+            .single()
+            .execute()
+        
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        
+        do {
+            let batch = try decoder.decode(CropBatch.self, from: response.data)
+            return batch
+        } catch {
+            print("Decoding error: \(error)")
+            print("Raw response: \(String(data: response.data, encoding: .utf8) ?? "nil")")
+            throw error
+        }
+    }
+}
