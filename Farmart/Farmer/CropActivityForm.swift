@@ -82,11 +82,13 @@ struct CropActivityForm: View {
         case .landPreparation:
             TextField("Tool", text: binding(for: "tool"))
             TextField("Fuel Type", text: binding(for: "fuelType"))
-            TextField("Carbon Emission (kg)", text: binding(for: "carbonEmission"))
+            
                 .keyboardType(.decimalPad)
             TextField("Method", text: binding(for: "method"))
-        case .fertilizer, .manure:
+        case .fertilizer:
             FertilizerForm(details: $details)
+        case .manure:
+            ManureForm(details: $details)
         case .seedSelection:
             Picker("Category", selection: binding(for: "category")) {
                 Text("Hybrid").tag("Hybrid")

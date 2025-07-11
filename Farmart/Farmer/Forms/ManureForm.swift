@@ -1,9 +1,9 @@
 import SwiftUICore
 import SwiftUI
 
-struct FertilizerForm: View {
+struct ManureForm: View {
     @Binding var details: [String: AnyCodable]
-    @StateObject private var viewModel = SuggestionViewModel(category: "fertilizer")
+    @StateObject private var viewModel = SuggestionViewModel(category: "manure")
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
