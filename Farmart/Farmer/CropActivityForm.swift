@@ -14,7 +14,7 @@ struct CropActivityForm: View {
     @State private var photoItems: [PhotosPickerItem] = []
     @State private var isUploading = false
     
-
+    @State private var showCamera = false
 
     var body: some View {
         NavigationView {
@@ -41,19 +41,21 @@ struct CropActivityForm: View {
                     }
                 }
 
-                PhotosPicker(selection: $photoItems, maxSelectionCount: 3, matching: .images) {
-                    Label("Add Photo(s)", systemImage: "photo.on.rectangle")
+                Section {
+                    Button {
+                        showCamera = true
+                    } label: {
+                        Label("Capture Photo", systemImage: "camera")
+                    }
                 }
-                .onChange(of: photoItems) { newItems in
-                    for item in newItems {
-                        Task {
-                            if let data = try? await item.loadTransferable(type: Data.self) {
-                                images.append(data)
-                            }
+                .sheet(isPresented: $showCamera) {
+                    ImagePicker(sourceType: .camera) { image in
+                        if let data = image.jpegData(compressionQuality: 0.8) {
+                            images.append(data)
                         }
                     }
                 }
-
+                
                 if isUploading {
                     ProgressView("Uploading images...")
                 }

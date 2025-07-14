@@ -52,7 +52,7 @@ struct LandPreparationForm: View {
             }
             .pickerStyle(.menu)
         }
-        .padding()
+//        .padding()
     }
 }
 
