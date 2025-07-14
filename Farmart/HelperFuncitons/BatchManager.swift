@@ -120,6 +120,7 @@ class BatchManager {
 
         do {
             let activities = try decoder.decode([CropActivity].self, from: data)
+            print("fetched activies:\(activities)")
             return activities
         } catch {
             print("Decoding error in fetchActivities: \(error)")
@@ -256,16 +257,38 @@ class BatchManager {
 
 extension BatchManager {
     func fetchBatchForVerification(batchId: String) async throws -> CropBatch {
-        let response = try await client.database
+        let response = try await client
             .from("batch")
             .select()
             .eq("id", value: batchId)
             .single()
             .execute()
-        
+
         let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        
+
+        // ISO8601 with fractional seconds
+        let fullISOFormatter = ISO8601DateFormatter()
+        fullISOFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+        // yyyy-MM-dd format (used for sowing_date)
+        let shortDateFormatter = DateFormatter()
+        shortDateFormatter.dateFormat = "yyyy-MM-dd"
+        shortDateFormatter.locale = Locale(identifier: "en_US_POSIX")
+
+        // Custom decoding strategy to handle both formats
+        decoder.dateDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            let dateStr = try container.decode(String.self)
+
+            if let fullDate = fullISOFormatter.date(from: dateStr) {
+                return fullDate
+            } else if let shortDate = shortDateFormatter.date(from: dateStr) {
+                return shortDate
+            }
+
+            throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid date format: \(dateStr)")
+        }
+
         do {
             let batch = try decoder.decode(CropBatch.self, from: response.data)
             return batch

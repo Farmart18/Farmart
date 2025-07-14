@@ -11,8 +11,9 @@ import SwiftUI
 // MARK: - Product Info Card
 struct BatchInfoCard: View {
     let batch: CropBatch
-    let activities: [CropActivity]
+    var activities: [CropActivity]
     var onRescan: () -> Void
+    
     
     var body: some View {
         ScrollView {
@@ -67,6 +68,7 @@ struct DetailRow: View {
     let icon: String
     let label: String
     let value: String
+    
     
     var body: some View {
         HStack {

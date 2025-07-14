@@ -86,7 +86,7 @@ struct ConsumerView: View {
             do {
                 let batch = try await BatchManager.shared.fetchBatchForVerification(batchId: batchId)
                 let activities = (try? await BatchManager.shared.fetchActivities(for: batch.id)) ?? []
-                
+                print("Fetched Activities: \(activities)")
                 await MainActor.run {
                     withAnimation {
                         scannedBatch = batch
